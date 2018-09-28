@@ -1,0 +1,42 @@
+version: '3'
+services:
+  selenium-hub:
+    image: selenium/hub
+    container_name: selenium-hub
+    ports:
+    - "4444:4444"
+  chrome:
+    image: selenium/node-chrome
+    depends_on:
+      - selenium-hub
+    environment:
+      - HUB_HOST=selenium-hub
+      - HUB_PORT=4444
+  firefox:
+    image: selenium/node-firefox
+    depends_on:
+      - selenium-hub
+    environment:
+      - HUB_HOST=selenium-hub
+      - HUB_PORT=4444
+
+  php-cli:
+    build:
+      context: ./
+      dockerfile: docker/php-cli.docker
+    environment:
+      - "PHP_IDE_CONFIG=serverName=Docker"
+    volumes:
+      - ./src:/var/www
+#    depends_on:
+#      - selenium-hub
+#      - chrome
+#      - firefox
+    tty: true
+
+  composer:
+    image: composer:1.7
+    volumes:
+    - ./src:/var/www
+    working_dir: /var/www
+    tty: true
